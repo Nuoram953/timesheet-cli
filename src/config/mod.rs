@@ -3,7 +3,7 @@ use directories::ProjectDirs;
 use serde::Deserialize;
 use std::{fs, io, path::PathBuf};
 
-use crate::config::schema::RecurringEntry;
+use crate::config::schema::{GeneralSettings, RecurringEntry};
 
 const APP_NAME: &str = "timesheet";
 const CONFIG_FILE: &str = "config.toml";
@@ -12,6 +12,7 @@ pub mod schema;
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
+    pub general: GeneralSettings,
     pub recurring: Vec<RecurringEntry>,
 }
 
@@ -33,7 +34,7 @@ pub fn ensure_rules_file() -> io::Result<PathBuf> {
     let path = dir.join(CONFIG_FILE);
 
     if !path.exists() {
-        fs::write(&path, DEFAULT_RULES)?;
+        fs::write(&path, DEFAULT_CONFIG)?;
     }
 
     Ok(path)
@@ -51,13 +52,9 @@ pub fn load_config() -> Result<Config> {
     Ok(config)
 }
 
-const DEFAULT_RULES: &str = r#"
-default_branch: main
-rules:
-  - name: deploy_change_requires_traffic
-    type: file
-    match:
-      - deploy
-      - scripts/deploy
-    warning: "Deploy script changed → did you update traffic script?"
+const DEFAULT_CONFIG: &str = r#"
+[[recurring]]
+name = "Daily standup"
+cron = "0 9 * * MON-FRI"
+duration_minutes = 15
 "#;

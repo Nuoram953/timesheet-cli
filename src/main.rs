@@ -1,7 +1,8 @@
-use std::process;
+use std::env;
 
 use clap::{Parser, Subcommand};
-use log::error;
+use dotenv::dotenv;
+// use log::error;
 
 pub mod commands;
 pub mod config;
@@ -22,6 +23,8 @@ struct Cli {
 }
 
 fn main() -> anyhow::Result<()> {
+    dotenv().ok();
+
     env_logger::init();
 
     let cli = Cli::parse();
