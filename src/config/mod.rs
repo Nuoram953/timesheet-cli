@@ -3,11 +3,17 @@ use directories::ProjectDirs;
 use serde::Deserialize;
 use std::{fs, io, path::PathBuf};
 
+use crate::config::schema::RecurringEntry;
+
 const APP_NAME: &str = "timesheet";
 const CONFIG_FILE: &str = "config.toml";
 
+pub mod schema;
+
 #[derive(Debug, Deserialize)]
-pub struct Config {}
+pub struct Config {
+    pub recurring: Vec<RecurringEntry>,
+}
 
 pub fn config_dir() -> io::Result<PathBuf> {
     let project_dirs = ProjectDirs::from("", "", APP_NAME).ok_or_else(|| {
@@ -39,6 +45,8 @@ pub fn load_config() -> Result<Config> {
     let contents = fs::read_to_string(&path).context("failed to read config file")?;
 
     let config: Config = toml::from_str(&contents).context("failed to parse TOML config")?;
+
+    println!("{:?}", config);
 
     Ok(config)
 }
