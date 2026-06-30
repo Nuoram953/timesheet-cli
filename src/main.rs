@@ -1,0 +1,34 @@
+use std::process;
+
+use clap::{Parser, Subcommand};
+use log::error;
+
+pub mod commands;
+pub mod config;
+
+#[derive(Subcommand)]
+enum Commands {
+    Init {},
+}
+
+#[derive(Parser)]
+#[command(version, about, long_about = None)]
+struct Cli {
+    #[arg(short, long, action = clap::ArgAction::Count)]
+    debug: u8,
+
+    #[command(subcommand)]
+    command: Commands,
+}
+
+fn main() -> anyhow::Result<()> {
+    env_logger::init();
+
+    let cli = Cli::parse();
+
+    match &cli.command {
+        Commands::Init {} => commands::init::handle(),
+    }?;
+
+    Ok(())
+}
