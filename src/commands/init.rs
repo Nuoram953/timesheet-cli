@@ -1,13 +1,17 @@
+use std::env;
+
 use anyhow::{Ok, Result};
 
 use crate::config::load_config;
 
 pub fn handle() -> Result<()> {
     load_config().unwrap();
-    //check if config file exist. If no create it
-    //
-    //ask the user for jira username/password
-    //ask the user for harvest username/password
+
+    env::var("JIRA_EMAIL").expect("Set JIRA_EMAIL env value");
+    env::var("JIRA_TOKEN").expect("Set JIRA_TOKEN env value");
+
+    env::var("HARVEST_TOKEN").expect("Set HARVEST_TOKEN env value");
+    env::var("HARVEST_ACCOUNT_ID").expect("Set HARVEST_ACCOUNT_ID env value");
 
     Ok(())
 }

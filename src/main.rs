@@ -6,6 +6,7 @@ use dotenv::dotenv;
 
 pub mod commands;
 pub mod config;
+pub mod jira;
 
 #[derive(Subcommand)]
 enum Commands {
