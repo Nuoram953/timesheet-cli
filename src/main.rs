@@ -1,8 +1,5 @@
-use std::env;
-
 use clap::{Parser, Subcommand};
 use dotenv::dotenv;
-// use log::error;
 
 pub mod commands;
 pub mod config;

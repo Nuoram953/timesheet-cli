@@ -16,4 +16,10 @@ impl JiraClient {
             api_token: config.api_token,
         }
     }
+
+    fn build_auth_header(self) -> String {
+        use base64::prelude::*;
+        let credentials = format!("{}:{}", self.email, self.api_token);
+        format!("Basic {}", BASE64_STANDARD.encode(credentials.as_bytes()))
+    }
 }

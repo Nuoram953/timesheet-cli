@@ -1900,6 +1900,7 @@ name = "timesheet-cli"
 version = "0.0.1"
 dependencies = [
  "anyhow",
+ "base64",
  "clap",
  "colored",
  "config",
