@@ -1,4 +1,7 @@
-use crate::jira::JiraConfig;
+use crate::jira::{
+    models::{Issue, JiraApiResponse},
+    JiraConfig,
+};
 
 pub struct JiraClient {
     http: reqwest::Client,
@@ -22,4 +25,34 @@ impl JiraClient {
         let credentials = format!("{}:{}", self.email, self.api_token);
         format!("Basic {}", BASE64_STANDARD.encode(credentials.as_bytes()))
     }
+
+    fn search_issues(&self, jql: &str) -> Result<Vec<Issue>, JiraError> {
+        let url = format!("{}/rest/api/3/search", self.base_url);
+
+        let response = self
+            .http
+            .get(&url)
+            .header("Authorization", self.build_auth_header())
+            .header("Accept", "application/json")
+            .query(&[("jql", jql)])
+            .send()?;
+
+        if response.status() == reqwest::StatusCode::UNAUTHORIZED {
+            return Err(JiraError::Unauthorized);
+        }
+
+        let body: JiraApiResponse = response.json()?;
+        Ok(body.issues.unwrap())
+    }
+
+    pub fn get_tasks_worked_on_current_month(&self) -> Result<Vec<Issue>, JiraError> {
+        let jql = crate::jira::queries::my_status_changes_this_month_jql();
+        self.search_issues(&jql)
+    }
+}
+
+#[derive(thiserror::Error, Debug)]
+pub enum JiraError {
+    #[error("Jira auth failed — check email/token")]
+    Unauthorized,
 }
