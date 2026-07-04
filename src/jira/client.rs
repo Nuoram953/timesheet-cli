@@ -20,35 +20,46 @@ impl JiraClient {
         }
     }
 
-    fn build_auth_header(self) -> String {
+    fn build_auth_header(&self) -> String {
         use base64::prelude::*;
         let credentials = format!("{}:{}", self.email, self.api_token);
         format!("Basic {}", BASE64_STANDARD.encode(credentials.as_bytes()))
     }
 
-    fn search_issues(&self, jql: &str) -> Result<Vec<Issue>, JiraError> {
-        let url = format!("{}/rest/api/3/search", self.base_url);
+    async fn search_issues(&self, jql: &str) -> Result<Vec<Issue>, JiraError> {
+        let url = format!("{}/rest/api/3/search/jql", self.base_url);
 
         let response = self
             .http
             .get(&url)
             .header("Authorization", self.build_auth_header())
             .header("Accept", "application/json")
-            .query(&[("jql", jql)])
-            .send()?;
+            .query(&[("jql", jql), ("fields", "*all"), ("maxResults", "5000")])
+            .send()
+            .await?;
 
         if response.status() == reqwest::StatusCode::UNAUTHORIZED {
             return Err(JiraError::Unauthorized);
         }
 
-        let body: JiraApiResponse = response.json()?;
-        Ok(body.issues.unwrap())
+
+        let api_response: JiraApiResponse<Issue> =
+            response.json().await?;
+
+        let issues: Vec<Issue> = api_response
+            .issues
+            .unwrap_or_default()
+            .into_iter()
+            .map(Issue::from)
+            .collect();
+
+        Ok(issues)
     }
 
-    pub fn get_tasks_worked_on_current_month(&self) -> Result<Vec<Issue>, JiraError> {
+    pub async fn get_tasks_worked_on_current_month(&self) -> Result<Vec<Issue>, JiraError> {
         let jql =
             "status CHANGED BY currentUser() DURING (startOfMonth(), endOfMonth())".to_string();
-        self.search_issues(&jql)
+        self.search_issues(&jql).await
     }
 }
 
@@ -56,4 +67,6 @@ impl JiraClient {
 pub enum JiraError {
     #[error("Jira auth failed — check email/token")]
     Unauthorized,
+    #[error("HTTP error: {0}")]
+    Http(#[from] reqwest::Error),
 }

@@ -20,7 +20,8 @@ struct Cli {
     command: Commands,
 }
 
-fn main() -> anyhow::Result<()> {
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
     dotenv().ok();
 
     env_logger::init();
@@ -28,8 +29,8 @@ fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
     match &cli.command {
-        Commands::Init {} => commands::init::handle(),
-    }?;
+        Commands::Init {} => commands::init::handle().await?,
+    };
 
     Ok(())
 }
