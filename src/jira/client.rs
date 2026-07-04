@@ -46,7 +46,8 @@ impl JiraClient {
     }
 
     pub fn get_tasks_worked_on_current_month(&self) -> Result<Vec<Issue>, JiraError> {
-        let jql = crate::jira::queries::my_status_changes_this_month_jql();
+        let jql =
+            "status CHANGED BY currentUser() DURING (startOfMonth(), endOfMonth())".to_string();
         self.search_issues(&jql)
     }
 }
