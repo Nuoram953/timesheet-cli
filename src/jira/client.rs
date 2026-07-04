@@ -42,9 +42,12 @@ impl JiraClient {
             return Err(JiraError::Unauthorized);
         }
 
+        let body = response.text().await?;
 
-        let api_response: JiraApiResponse<Issue> =
-            response.json().await?;
+        let json: serde_json::Value = serde_json::from_str(&body)?;
+        println!("{}", serde_json::to_string_pretty(&json)?);
+
+        let api_response: JiraApiResponse<Issue> = serde_json::from_str(&body)?;
 
         let issues: Vec<Issue> = api_response
             .issues
@@ -69,4 +72,6 @@ pub enum JiraError {
     Unauthorized,
     #[error("HTTP error: {0}")]
     Http(#[from] reqwest::Error),
+    #[error("HTTP error: {0}")]
+    Parsing(#[from] serde_json::Error),
 }
