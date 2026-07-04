@@ -12,3 +12,8 @@ pub struct RecurringEntry {
     pub cron: String,
     pub duration_minutes: usize,
 }
+
+#[derive(Debug, Deserialize)]
+pub struct CustomFields {
+    pub story_point: String,
+}

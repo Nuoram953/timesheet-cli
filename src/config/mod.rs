@@ -3,7 +3,7 @@ use directories::ProjectDirs;
 use serde::Deserialize;
 use std::{fs, io, path::PathBuf};
 
-use crate::config::schema::{GeneralSettings, RecurringEntry};
+use crate::config::schema::{CustomFields, GeneralSettings, RecurringEntry};
 
 const APP_NAME: &str = "timesheet";
 const CONFIG_FILE: &str = "config.toml";
@@ -14,6 +14,7 @@ pub mod schema;
 pub struct Config {
     pub general: GeneralSettings,
     pub recurring: Vec<RecurringEntry>,
+    pub custom_fields: CustomFields,
 }
 
 pub fn config_dir() -> io::Result<PathBuf> {

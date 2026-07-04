@@ -1,7 +1,6 @@
-use crate::jira::{
-    models::{Issue, JiraApiResponse},
-    JiraConfig,
-};
+use crate::{config::load_config, jira::{
+    JiraConfig, models::{Issue, JiraApiResponse, JiraIssue}
+}};
 
 pub struct JiraClient {
     http: reqwest::Client,
@@ -27,6 +26,7 @@ impl JiraClient {
     }
 
     async fn search_issues(&self, jql: &str) -> Result<Vec<Issue>, JiraError> {
+        let config = load_config().unwrap();
         let url = format!("{}/rest/api/3/search/jql", self.base_url);
 
         let response = self
@@ -47,13 +47,13 @@ impl JiraClient {
         let json: serde_json::Value = serde_json::from_str(&body)?;
         println!("{}", serde_json::to_string_pretty(&json)?);
 
-        let api_response: JiraApiResponse<Issue> = serde_json::from_str(&body)?;
+        let api_response: JiraApiResponse<JiraIssue> = serde_json::from_str(&body)?;
 
         let issues: Vec<Issue> = api_response
             .issues
             .unwrap_or_default()
             .into_iter()
-            .map(Issue::from)
+            .map(|jira_issue: JiraIssue| Issue::from(jira_issue, &config.custom_fields))
             .collect();
 
         Ok(issues)
