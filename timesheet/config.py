@@ -86,9 +86,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
         # JQL used to find issues you worked on in the target week.
         # {start} / {end} are substituted as YYYY-MM-DD.
         "jql": (
-            "assignee = currentUser() AND "
-            "(worklogDate >= {start} OR updated >= {start}) "
-            "AND updated <= {end}"
+            "status CHANGED by currentUser() DURING ({start}, {end})"
         ),
         # Custom field id holding story points, e.g. "customfield_10016".
         "story_points_field": "customfield_10016",
