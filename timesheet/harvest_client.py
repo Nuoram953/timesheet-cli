@@ -33,7 +33,7 @@ class HarvestClient:
     def list_active_projects(self) -> list[HarvestProject]:
         projects: list[HarvestProject] = []
         url = f"{API_BASE}/projects"
-        params = {"is_active": "true", "per_page": 100}
+        params = {}
         while url:
             resp = self.session.get(url, params=params)
             resp.raise_for_status()

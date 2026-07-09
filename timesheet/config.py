@@ -98,7 +98,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "harvest": {
         "account_id": get_secret(name="harvest_account_id"),
     },
-    "points_to_hours_ratio": 1.0,
+    "points_to_hours_ratio": 12,
     "hours_per_day": 7.5,
     "work_days": ["mon", "tue", "wed", "thu", "fri"],
     "recurring": [],
